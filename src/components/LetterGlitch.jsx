@@ -2,8 +2,10 @@ import { useEffect, useRef } from 'react';
 
 const DEFAULT_CHARACTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ!@#$&*()-_+=/[]{};:<>.,0123456789';
 const DEFAULT_FONT = "ui-monospace, 'SF Mono', 'JetBrains Mono', Menlo, Consolas, 'Liberation Mono', monospace";
-const DARK_COLORS = ['#ffffff', '#61dca3'];
-const LIGHT_COLORS = ['#18181b', '#0f9f6e'];
+const DARK_COLORS = ['#091A14', '#61dca3'];
+const LIGHT_COLORS = ['#3f6f5c', '#065f46', '#047857'];
+const LIGHT_BASE = '#a1a1a1';
+const LIGHT_BASE_OPACITY = 0.42;
 const MAX_COLORS = 8;
 const INTRO_SECONDS = 1.4;
 const REST_RATE = 0.2;
@@ -180,13 +182,13 @@ const LetterGlitch = ({
   const customColors = Array.isArray(glitchColors) && glitchColors.length ? glitchColors : null;
   const settings = {
     colors: (customColors || (lightMode ? LIGHT_COLORS : DARK_COLORS)).slice(0, MAX_COLORS),
-    baseColor: baseColor || (lightMode ? '#18181b' : '#ffffff'),
+    baseColor: baseColor || (lightMode ? LIGHT_BASE : '#a1a1a1'),
     characters: characters || DEFAULT_CHARACTERS,
     fontFamily: fontFamily || DEFAULT_FONT,
     fontSize: clamp(fontSize, 6, 96),
     spacing: clamp(spacing, 0, 2),
     density: clamp(density, 0, 1),
-    baseOpacity: clamp(baseOpacity, 0, 1),
+    baseOpacity: clamp(lightMode ? Math.max(baseOpacity, LIGHT_BASE_OPACITY) : baseOpacity, 0, 1),
     glitchAmount: clamp(glitchAmount, 0, 1),
     speed: Math.max(0, speed),
     smooth,
@@ -244,7 +246,7 @@ const LetterGlitch = ({
       let rgb = [1, 1, 1];
       if (probe) {
         probe.clearRect(0, 0, 1, 1);
-        probe.fillStyle = '#ffffff';
+        probe.fillStyle = '#e5e5e5';
         probe.fillStyle = key;
         probe.fillRect(0, 0, 1, 1);
         const [r, g, b] = probe.getImageData(0, 0, 1, 1).data;
@@ -355,7 +357,7 @@ const LetterGlitch = ({
       atlasContext.font = font;
       atlasContext.textAlign = 'center';
       atlasContext.textBaseline = 'alphabetic';
-      atlasContext.fillStyle = '#ffffff';
+      atlasContext.fillStyle = '#e5e5e5';
       const baseline = cellH / 2 + (metrics.actualBoundingBoxAscent - metrics.actualBoundingBoxDescent) / 2;
       unique.forEach((char, i) => {
         atlasContext.fillText(char, (i % columns) * cellW + cellW / 2, Math.floor(i / columns) * cellH + baseline);
@@ -468,7 +470,7 @@ const LetterGlitch = ({
       paletteKey = key;
       colorCount = Math.max(1, s.colors.length);
       for (let i = 0; i < MAX_COLORS; i++) {
-        const rgb = parse(s.colors[Math.min(i, colorCount - 1)] ?? '#ffffff');
+        const rgb = parse(s.colors[Math.min(i, colorCount - 1)] ?? '#e5e5e5');
         palette[i * 3] = rgb[0];
         palette[i * 3 + 1] = rgb[1];
         palette[i * 3 + 2] = rgb[2];

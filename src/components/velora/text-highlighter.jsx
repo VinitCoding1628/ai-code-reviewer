@@ -33,6 +33,7 @@ export function TextHighlighter({
         transition={{
           duration: reducedMotion ? 0 : duration,
           ease: [0.22, 1, 0.36, 1],
+          delay: 0.5
         }}
         style={{ background: color }}
         className="absolute -inset-x-1 inset-y-0 origin-left rounded-sm"
