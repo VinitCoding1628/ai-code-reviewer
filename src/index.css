@@ -47,6 +47,7 @@
     --radius-3xl: calc(var(--radius) * 2.2);
     --radius-4xl: calc(var(--radius) * 2.6);
     --animate-shimmer: shimmer 2.5s linear infinite;
+    --color-card-hover: var(--card-hover);
   @keyframes shimmer {
   from {
     background-position: 200% 0;
@@ -65,7 +66,8 @@
     --background: #eef7f2;
     --foreground: oklch(0.145 0 0);
     --card: oklch(1 0 0);
-    --card-foreground: oklch(0.145 0 0);
+    --card-foreground: #fcfffe;
+    --card-hover: #10b98152;
     --popover: oklch(1 0 0);
     --popover-foreground: oklch(0.145 0 0);
     --primary: #10B981;
@@ -103,8 +105,9 @@
 .dark {
     --background: #091A14;
     --foreground: rgb(250, 250, 250);
-    --card: oklch(0.205 0 0);
-    --card-foreground: oklch(0.985 0 0);
+    --card: #0f2c22;
+    --card-foreground: #03271b; 
+    --card-hover: #10b98174;
     --popover: oklch(0.205 0 0);
     --popover-foreground: oklch(0.985 0 0);
     --primary: #10B981;
@@ -136,6 +139,11 @@
     --brand-from: oklch(0.623 0.214 260);
     --brand-via: oklch(0.707 0.165 255);
     --brand-to: oklch(0.746 0.16 233);
+}
+
+::selection {
+  background-color: #20aa7ccf;
+  color: var(--card);
 }
 
 @layer base {
