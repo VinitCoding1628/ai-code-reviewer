@@ -3,6 +3,8 @@ import Navbar from './components/ui/Navbar'
 import { Routes, Route} from 'react-router-dom'
 import LandingPage from './pages/LandingPage'
 import CodeReviewPage from './pages/CodeReviewPage'
+import ErrorPage from './pages/ErrorPage'
+
 
 const App = () => {
   return (
@@ -11,6 +13,7 @@ const App = () => {
       <Routes>
         <Route path='/' element={<LandingPage />}/>
         <Route path='/code-review' element={<CodeReviewPage />}/>
+        <Route path='*' element={<ErrorPage />}/>
       </Routes>
     </>
   )

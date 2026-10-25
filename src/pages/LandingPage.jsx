@@ -8,6 +8,9 @@ import { useTheme } from '@/hooks/useTheme';
 import { SpotlightCard } from '@/components/velora/spotlight-card';
 import Signal from '@/components/flows/Signal';
 import { AnnotatedText } from '@/components/ui/annotated-text';
+import { TextHoverEffect } from '@/components/velora/text-hover-effect';
+import { useNavigate } from 'react-router-dom';
+
 
 const LIGHT_GLITCH = ['#3f6f5c', '#065f46', '#047857'];
 const DARK_GLITCH = ['#091A14', '#61dca3'];
@@ -15,6 +18,7 @@ const DARK_GLITCH = ['#091A14', '#61dca3'];
 const LandingPage = () => {
     const { theme } = useTheme();
     const isLight = theme === 'light';
+    const navigate = useNavigate();
     const list = [
         '5 Free Credits',
         'No Login Required',
@@ -111,7 +115,7 @@ const LandingPage = () => {
                         Get instant, detailed code reviews, detect bugs, improve performance, and follow best practices — all powered by{" "}
                         <SparklesText className="font-semibold text-primary">Gemini AI</SparklesText>
                     </motion.p>
-                    <motion.div variants={item}>
+                    <motion.div variants={item} onClick={() => navigate('/code-review')}>
                         <ShimmerButton>Start Reviewing</ShimmerButton>
                     </motion.div>
                     <motion.ul variants={item} className="flex w-full items-center justify-between px-10">
@@ -178,6 +182,18 @@ const LandingPage = () => {
                 </motion.div>
 
             </motion.section>
+
+            {/* Footer */}
+            <motion.footer initial="hidden" whileInView="show" viewport={{ once: true, amount: 0.15 }} className='py-7 px-6 border-t-[0.3px] border-gray-400 dark:border-gray-200 bg-linear-to-b from-primary/200 to-secondary/30'>
+                <motion.div variants={item} className='flex justify-between items-start '>
+                    <h4>Powered by Google Gemini.</h4>
+                    <h4>Developed by <a href='https://www.artfolio.tech/vinitgite' target='_blank' className='text-secondary hover:underline'>Vinit Gite</a></h4>
+                </motion.div>
+
+                <motion.div variants={item} className='flex justify-center items-center pt-10 '>
+                    <TextHoverEffect text="CODEREV" className="w-full max-w-2xl text-muted-foreground"/>
+                </motion.div>
+            </motion.footer>
         </div>
     )
 }
