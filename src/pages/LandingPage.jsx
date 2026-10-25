@@ -6,6 +6,8 @@ import { SparklesText } from '@/components/velora/sparkles-text';
 import { motion } from 'framer-motion';
 import { useTheme } from '@/hooks/useTheme';
 import { SpotlightCard } from '@/components/velora/spotlight-card';
+import Signal from '@/components/flows/Signal';
+import { AnnotatedText } from '@/components/ui/annotated-text';
 
 const LIGHT_GLITCH = ['#3f6f5c', '#065f46', '#047857'];
 const DARK_GLITCH = ['#091A14', '#61dca3'];
@@ -98,7 +100,10 @@ const LandingPage = () => {
                 >
                     <motion.h1 variants={item} className="max-w-3xl text-7xl font-semibold tracking-tight leading-24">
                         Write Better Code with{" "}
-                        <TextHighlighter className="bg-linear-to-r from-primary to-secondary bg-clip-text text-transparent">
+                        <TextHighlighter
+                            immediate
+                            className="bg-linear-to-r from-primary to-secondary bg-clip-text text-transparent"
+                        >
                             AI Review
                         </TextHighlighter>
                     </motion.h1>
@@ -157,12 +162,19 @@ const LandingPage = () => {
 
             {/* Process Flow */}
             <motion.section
+                className="flex flex-col items-center text-center my-6"
                 variants={container}
                 initial="hidden"
                 whileInView="show"
                 viewport={{ once: true, amount: 0.15 }}>
-                <motion.div variants={item}>
-                    <h6 className="text-primary text-base font-medium">PROCESS FLOW</h6>
+                <motion.div variants={item} className='flex flex-col items-center text-center gap-5 pt-10'>
+                    <h6 className="text-secondary text-sm font-medium">POWERED BY AI</h6>
+                    <h2 className='text-5xl font-semibold text-center'>Your Code, <span className='bg-linear-to-r from-primary to-secondary bg-clip-text text-transparent'>Smarter <AnnotatedText variant="doubleUnderline" delay={0.16}>with AI</AnnotatedText></span></h2>
+                    <p className='mt-4 text-muted-foreground text-base'>Turn your code into cleaner, faster, and more reliable solutions</p>
+                </motion.div>
+
+                <motion.div variants={item} className="w-full">
+                    <Signal />
                 </motion.div>
 
             </motion.section>
