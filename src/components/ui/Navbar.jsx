@@ -9,10 +9,10 @@ const Navbar = () => {
   const navigate = useNavigate();
   return (
     <>
-        <nav className='flex justify-between items-center p-4 bg-inherit backdrop-blur-xl backdrop-brightness-105 fixed top-0 w-full border-b-[0.01px] border-muted-foreground z-90'>
+        <nav className='flex justify-between items-center px-7 py-2 bg-inherit backdrop-blur-xl backdrop-brightness-105 fixed top-0 w-full border-b-[0.01px] border-muted-foreground z-90'>
             <div className='flex items-center gap-2 cursor-pointer' onClick={() => navigate('/')}>
-                <img src={logo} alt="logo" />
-                <h1 className='text-xl font-semibold'>CodeRev</h1>
+                <img src={logo} alt="logo" className='w-6'/>
+                <h1 className='text-lg font-semibold'>CodeRev</h1>
             </div>
             <Spin toggled={theme === 'dark'} onClick={toggleTheme} className='text-xl text-foreground cursor-pointer' />
         </nav>
