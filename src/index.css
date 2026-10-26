@@ -48,6 +48,7 @@
     --radius-4xl: calc(var(--radius) * 2.6);
     --animate-shimmer: shimmer 2.5s linear infinite;
     --color-card-hover: var(--card-hover);
+    --color-code-editor: var(--code-editor);
   @keyframes shimmer {
   from {
     background-position: 200% 0;
@@ -100,6 +101,7 @@
     --brand-from: oklch(0.546 0.245 263);
     --brand-via: oklch(0.623 0.214 260);
     --brand-to: oklch(0.685 0.169 237);
+    --code-editor:#f5fbf9;
 }
 
 .dark {
@@ -139,6 +141,7 @@
     --brand-from: oklch(0.623 0.214 260);
     --brand-via: oklch(0.707 0.165 255);
     --brand-to: oklch(0.746 0.16 233);
+    --code-editor:#0f3729;
 }
 
 ::selection {
