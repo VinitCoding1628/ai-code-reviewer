@@ -291,7 +291,7 @@ function ResultCard({ item, index }) {
 export default function Signal() {
   return (
     <section className="relative isolate w-full overflow-hidden py-6 sm:py-10">
-      <div className="mx-auto w-full max-w-7xl px-3 sm:px-6">
+      <div className="mx-auto w-full max-w-5xl lg:max-w-7xl px-3 sm:px-6">
         <div className="overflow-x-auto px-1 pb-1 sm:-mx-2 sm:px-2 lg:mx-0 lg:overflow-visible lg:px-0">
           <div
             className="relative mx-auto aspect-12/5 w-full lg:min-w-0"
