@@ -166,32 +166,54 @@ const LandingPage = () => {
 
             {/* Process Flow */}
             <motion.section
-                className="flex flex-col items-center text-center my-6"
+                className="relative overflow-hidden bg-card/40"
                 variants={container}
                 initial="hidden"
                 whileInView="show"
-                viewport={{ once: true, amount: 0.15 }}>
-                <motion.div variants={item} className='flex flex-col items-center text-center gap-5 pt-10'>
-                    <h6 className="text-secondary text-sm font-medium">POWERED BY AI</h6>
-                    <h2 className='text-5xl font-semibold text-center'>Your Code, <span className='bg-linear-to-r from-primary to-secondary bg-clip-text text-transparent'>Smarter <AnnotatedText variant="doubleUnderline" delay={0.16}>with AI</AnnotatedText></span></h2>
-                    <p className='mt-4 text-muted-foreground text-base'>Turn your code into cleaner, faster, and more reliable solutions</p>
-                </motion.div>
+                viewport={{ once: true, amount: 0.15 }}
+            >
+                <div
+                    aria-hidden
+                    className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,color-mix(in_oklch,var(--foreground)_8%,transparent)_1px,transparent_1px),linear-gradient(to_bottom,color-mix(in_oklch,var(--foreground)_8%,transparent)_1px,transparent_1px)] bg-size-[2.75rem_2.75rem] mask-[radial-gradient(ellipse_at_center,black_25%,transparent_88%)] dark:bg-[linear-gradient(to_right,color-mix(in_oklch,var(--border)_35%,transparent)_1px,transparent_1px),linear-gradient(to_bottom,color-mix(in_oklch,var(--border)_35%,transparent)_1px,transparent_1px)] dark:mask-[radial-gradient(ellipse_at_center,black_15%,transparent_85%)]"
+                />
 
-                <motion.div variants={item} className="w-full">
-                    <Signal />
-                </motion.div>
+                <div className="relative z-10 flex flex-col items-center px-4 py-10 text-center sm:px-8 md:py-14">
+                    <motion.div variants={item} className="flex max-w-3xl flex-col items-center gap-5">
+                        <h6 className="text-sm font-medium text-secondary">POWERED BY AI</h6>
+                        <h2 className="text-center text-4xl font-semibold sm:text-5xl">
+                            Your Code,{" "}
+                            <span className="bg-linear-to-r from-primary to-secondary bg-clip-text text-transparent">
+                                Smarter{" "}
+                                <AnnotatedText variant="doubleUnderline" delay={0.16}>
+                                    with AI
+                                </AnnotatedText>
+                            </span>
+                        </h2>
+                        <p className="text-base text-muted-foreground">
+                            Turn your code into cleaner, faster, and more reliable solutions
+                        </p>
+                    </motion.div>
 
+                    <motion.div variants={item} className="mt-8 w-full">
+                        <Signal />
+                    </motion.div>
+                </div>
             </motion.section>
 
             {/* Footer */}
-            <motion.footer initial="hidden" whileInView="show" viewport={{ once: true, amount: 0.15 }} className='py-7 px-6 border-t-[0.3px] border-gray-400 dark:border-gray-200 bg-linear-to-b from-primary/200 to-secondary/30'>
+            <motion.footer initial="hidden" whileInView="show" viewport={{ once: true, amount: 0.15 }} className='py-7 px-6 border-t-[0.3px] border-gray-400 dark:border-gray-200 bg-linear-to-b from-primary/200 to-secondary/30 bg-white dark:bg-card'>
                 <motion.div variants={item} className='flex justify-between items-start '>
                     <h4>Powered by Google Gemini.</h4>
                     <h4>Developed by <a href='https://www.artfolio.tech/vinitgite' target='_blank' className='text-secondary hover:underline'>Vinit Gite</a></h4>
                 </motion.div>
 
                 <motion.div variants={item} className='flex justify-center items-center pt-10 '>
-                    <TextHoverEffect text="CODEREV" className="w-full max-w-2xl text-muted-foreground"/>
+                    <TextHoverEffect
+                        text="CODEREV"
+                        animateOnView
+                        viewAmount={0.35}
+                        className="w-full max-w-2xl text-muted-foreground"
+                    />
                 </motion.div>
             </motion.footer>
         </div>

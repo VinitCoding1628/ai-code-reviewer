@@ -2,6 +2,7 @@
 import { useEffect, useId, useRef, useState } from "react";
 import {
   motion,
+  useInView,
   useMotionTemplate,
   useMotionValue,
   useReducedMotion,
@@ -23,13 +24,21 @@ export function TextHoverEffect({
   strokeWidth = 0.75,
   revealRadius = 28,
   drawDuration = 3,
+  animateOnView = false,
+  viewAmount = 0.25,
   className,
   onPointerMove,
   ...props
 }) {
   const id = useId();
+  const rootRef = useRef(null);
   const outlineRef = useRef(null);
   const reducedMotion = useReducedMotion();
+  const isInView = useInView(rootRef, {
+    once: true,
+    amount: viewAmount,
+  });
+  const shouldDraw = !animateOnView || isInView;
   // A rough first guess so the server render has sensible proportions; the
   // real glyph box is measured once the font has loaded.
   const [box, setBox] = useState({ w: text.length * 64 + PAD * 2, h: 80, x: PAD, y: 76 });
@@ -69,10 +78,10 @@ export function TextHoverEffect({
   // the computed style commits that state before we transition to zero.
   useEffect(() => {
     const el = outlineRef.current;
-    if (!el) return;
+    if (!el || !shouldDraw) return;
     void getComputedStyle(el).strokeDashoffset;
     el.style.strokeDashoffset = "0";
-  }, []);
+  }, [shouldDraw]);
 
   const frame = {
     maskUnits: "userSpaceOnUse",
@@ -89,6 +98,7 @@ export function TextHoverEffect({
 
   return (
     <svg
+      ref={rootRef}
       role="img"
       aria-label={text}
       viewBox={`0 0 ${box.w} ${box.h}`}
