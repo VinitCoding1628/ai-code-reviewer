@@ -40,7 +40,7 @@ const DetailedErrors = ({ heading, description }) => {
                 ))}
                 {
                     description?.length === 0 && (
-                        <div className='flex justify-center items-center h-20'>
+                        <div>
                             {
                                 heading === 'Critical Issues' && (
                                     <p className='text-sm text-muted-foreground'>No critical issues found</p>

@@ -29,12 +29,14 @@ import DetailedErrors from "@/components/DetailedErrors";
 import { Modal, ModalContent, ModalFooter, ModalTrigger } from "@/components/velora/animated-modal";
 import { Separator } from "@/components/ui/separator";
 import { Field, FieldLabel } from '@/components/ui/field';
-import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group"
+import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group";
+import { MultiStepLoader } from "@/components/velora/multi-step-loader";
 
 const CodeReviewPage = () => {
-  const [isNoContent, setIsNoContent] = useState(false);
-  const [screens, setScreens] = useState("analyze")
+  const [screens, setScreens] = useState("")
   const [seeAPIKey, setSeeAPIKey] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [loaderAction, setLoaderAction] = useState(null);
   const toggleAPIKeyVisibility = () => {
     setSeeAPIKey(!seeAPIKey);
   };
@@ -76,7 +78,7 @@ const CodeReviewPage = () => {
 
       title: "SQL Injection Risk",
       description:
-        "Direct concatenation of parameters into query string at line 2. hkhakwjhdjkawhdjkahwkjdhawhjdbabwmdamnwdmanwdnawdmanwdbmanwbndnmabmwbdam",
+        "Direct concatenation of parameters into query string",
       severity: "critical",
       category: "security",
       line: 2,
@@ -399,24 +401,45 @@ const CodeReviewPage = () => {
     },
   ];
 
+  const reviewSteps = [
+    { text: "Parsing your code" },
+    { text: "Scanning for bugs and security issues" },
+    { text: "Evaluating code quality" },
+    { text: "Checking performance patterns" },
+    { text: "Generating recommendations" },
+    { text: "Finalizing your review" },
+  ];
 
+  const fixSteps = [
+    { text: "Scanning for fixable issues" },
+    { text: "Prioritizing critical and safe fixes" },
+    { text: "Applying patches to your code" },
+    { text: "Improving readability and structure" },
+    { text: "Running validation checks" },
+    { text: "Preparing updated code" },
+  ];
 
+  const activeLoaderSteps =
+    loaderAction === "fix" ? fixSteps : reviewSteps;
+  const activeLoaderTitle =
+    loaderAction === "fix" ? "Applying code fixes" : "Review in progress";
   return (
-    <section className="mx-5 flex gap-4 pt-14">
+    <section className="mx-auto flex w-full flex-col gap-4 px-3 pb-3 pt-14 sm:px-5 lg:flex-row lg:items-stretch">
       {/* Code Editor */}
-      <div className="w-[45%] rounded-md bg-card p-4 shadow">
+      <div className="flex min-w-0 w-full flex-col rounded-md bg-card p-3 shadow sm:p-4 lg:w-[45%]">
         {/* Title & Language Selector*/}
-        <div className="flex items-center justify-between gap-1">
-          <div>
-            <h2 className="text-xl font-semibold">Enter your Code</h2>
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <div className="min-w-0">
+            <h2 className="text-lg font-semibold sm:text-xl">Enter your Code</h2>
             <p className="text-sm text-muted-foreground">
               Paste your code below and get AI powered review with suggestions
             </p>
           </div>
 
           {/* Language Selector */}
+          <div className="w-full shrink-0 sm:w-44">
           <Combobox items={codingLanguage} defaultValue={codingLanguage[0]}>
-            <ComboboxInput placeholder="Choose Language" />
+            <ComboboxInput placeholder="Choose Language" className="w-full" />
             <ComboboxContent>
               <ComboboxEmpty>No items found.</ComboboxEmpty>
               <ComboboxList>
@@ -428,35 +451,51 @@ const CodeReviewPage = () => {
               </ComboboxList>
             </ComboboxContent>
           </Combobox>
+          </div>
         </div>
 
         {/* Action Buttons*/}
-        <div className="mt-3 flex items-center justify-between gap-3">
-          <Button className="p-4 text-balance hover:bg-secondary/90">
-            <WandSparkles className="size-4" />
+        <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-4">
+          <Button
+            className="h-auto min-h-9 w-full px-3 py-2.5 text-balance hover:bg-secondary/90 sm:p-4"
+            onClick={() => {
+              setLoaderAction("review");
+              setLoading(true);
+              setScreens("");
+            }}
+          >
+            <WandSparkles className="size-4 shrink-0" />
             Review with AI
           </Button>
-          <Button variant='outline' className='bg-transparent p-4 font-medium text-balance hover:bg-primary/10'>
-            <Bug className="size-4" />
+          <Button
+            variant='outline'
+            className='h-auto min-h-9 w-full bg-transparent px-3 py-2.5 font-medium text-balance hover:bg-primary/10 sm:p-4'
+            onClick={() => {
+              setLoaderAction("fix");
+              setLoading(true);
+              setScreens("");
+            }}
+          >
+            <Bug className="size-4 shrink-0" />
             Fix Code
           </Button>
-          <Button variant='outline' className='bg-transparent p-4 font-medium text-balance hover:bg-primary/10'>
-            <Brain className="size-4" />
+          <Button variant='outline' className='h-auto min-h-9 w-full bg-transparent px-3 py-2.5 font-medium text-balance hover:bg-primary/10 sm:p-4'>
+            <Brain className="size-4 shrink-0" />
             Explain Code
           </Button>
           <Button
             variant="outline"
-            className="bg-transparent p-4 font-medium text-balance hover:bg-primary/10"
+            className="h-auto min-h-9 w-full bg-transparent px-3 py-2.5 font-medium text-balance hover:bg-primary/10 sm:p-4"
           >
-            <Trash className="size-4" />
+            <Trash className="size-4 shrink-0" />
             Clear Code
           </Button>
         </div>
 
         {/* Code Editor */}
-        <div className="mt-3 overflow-hidden rounded-lg border border-border">
+        <div className="mt-3 flex h-[45vh] flex-1 flex-col overflow-hidden rounded-lg border border-border sm:h-[55vh] lg:h-auto lg:min-h-[45vh] xl:min-h-[68vh]">
           <Editor
-            height="70vh"
+            height="100%"
             language="javascript"
             defaultValue="// some comment"
             theme={monacoTheme}
@@ -466,14 +505,14 @@ const CodeReviewPage = () => {
         </div>
 
         {/* Usage */}
-        <div className="flex justify-between items-center mt-4">
-          <div className="flex items-center gap-2">
-            <Database />
+        <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-center gap-2 text-sm sm:text-base">
+            <Database className="size-4 shrink-0 sm:size-5" />
             <p>Free uses left: 0 / 5</p>
           </div>
 
           <Modal>
-            <ModalTrigger className="bg-primary p-3.5 font-medium text-balance"> <KeyIcon className="size-4" /> Add API Key</ModalTrigger>
+            <ModalTrigger className="w-full bg-primary p-3.5 font-medium text-balance sm:w-auto"> <KeyIcon className="size-4" /> Add API Key</ModalTrigger>
             <ModalContent
               title="Add API Key"
               className='text-foreground'
@@ -532,36 +571,26 @@ const CodeReviewPage = () => {
       </div>
 
       {/* Result Preview */}
-      <div className="w-[55%] overflow-y-auto rounded-md bg-card p-4 shadow">
+      <div className="flex min-w-0 w-full flex-col overflow-hidden rounded-md bg-card p-3 shadow sm:p-4 lg:w-[55%] lg:min-h-0">
         {/* Title */}
-        <div className="flex flex-col gap-1">
-          <h2 className="text-xl font-semibold">AI Code Review Results</h2>
+        <div className="shrink-0 flex flex-col gap-1">
+          <h2 className="text-lg font-semibold sm:text-xl">AI Code Review Results</h2>
           <p className="text-sm text-muted-foreground">
             Paste your code below and get AI powered review with suggestions
           </p>
         </div>
 
-        {/* No content message */}
-        {
-          isNoContent && (
-            <div className="flex flex-col justify-center items-center mt-4 h-[90%]">
-              <MessageSquareCode />
-              <h3 className="text-xl font-semibold">No Results Yet</h3>
-              <p className="text-sm text-muted-foreground">Your AI review, explanation will appear here after you run an action.</p>
-            </div>
-          )
-        }
-
         {/* Screens */}
+        <div className="flex min-h-0 flex-1 flex-col overflow-y-auto">
         {
-          screens === "analyze" && !isNoContent ? (
-            <div className="pt-4 flex flex-col gap-4">
+          screens === "analyze" ? (
+            <div className="flex flex-col gap-4 pt-4">
               {/* Overall Score and Progress Boxes */}
-              <div className="flex justify-between items-center">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-4">
                 {/* Overall Score */}
-                <div className="flex items-center gap-2.5 border-[0.5px] border-muted-foreground/20 rounded-md px-2 py-2.5 shadow">
+                <div className="flex w-full items-center gap-2.5 rounded-md border border-muted-foreground/20 px-2 py-2.5 shadow">
                   <ScoreGuage score={90} size={55} strokeWidth={7} />
-                  <div className="flex flex-col gap-0.5">
+                  <div className="flex min-w-0 flex-col gap-0.5">
                     <h4 className="text-balance font-medium">Overall Score </h4>
                     <p className="text-xs text-muted-foreground">Analysis completed</p>
                   </div>
@@ -602,12 +631,51 @@ const CodeReviewPage = () => {
                 </p>
               </div>
             </div>
-          ) : screens === "explain" && !isNoContent ? (
+          ) : screens === "fix" ? (
+            <div className="flex flex-col gap-4 pt-4">
+              <div className="flex flex-col gap-2 rounded border border-muted-foreground/20 p-2">
+                <div className="flex items-center gap-1.5">
+                  <Bug className="size-4 shrink-0 text-primary" />
+                  <h4 className="text-lg font-semibold">Code fixes ready</h4>
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  Fixable issues were addressed automatically. Compare the updated code in the editor and run Review with AI again if you want a full report.
+                </p>
+              </div>
+            </div>
+          ) : screens === "explain" ? (
             <>
             </>
-          ) : ""
+          ) : (
+            <div className="flex min-h-[min(50vh,24rem)] flex-1 flex-col items-center justify-center gap-2 px-2 py-8 text-center lg:min-h-0">
+              <MessageSquareCode className="size-10 sm:size-12" />
+              <h3 className="text-lg font-semibold sm:text-xl">No Results Yet</h3>
+              <p className="max-w-md text-sm text-muted-foreground">
+                Your AI review, explanation will appear here after you run an action.
+              </p>
+            </div>
+          )
         }
+        </div>
+
       </div>
+
+      <MultiStepLoader
+        loading={loading}
+        steps={activeLoaderSteps}
+        duration={1400}
+        title={activeLoaderTitle}
+        onComplete={() => {
+          const action = loaderAction;
+          setLoading(false);
+          setScreens(action === "fix" ? "fix" : "analyze");
+          setLoaderAction(null);
+        }}
+        onClose={() => {
+          setLoading(false);
+          setLoaderAction(null);
+        }}
+      />
     </section>
   );
 };
