@@ -1,7 +1,6 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Editor from "@monaco-editor/react";
 import { Brain, Bug, Database, FileText, Key, KeyIcon, Lightbulb, MessageSquareCode, RefreshCcw, Trash, WandSparkles, EyeIcon, EyeOffIcon, } from "lucide-react";
-
 import { Button } from "@/components/ui/button";
 import {
   Combobox,
@@ -31,18 +30,33 @@ import { Separator } from "@/components/ui/separator";
 import { Field, FieldLabel } from '@/components/ui/field';
 import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group";
 import { MultiStepLoader } from "@/components/velora/multi-step-loader";
+import { geminiAI } from "@/utils/GeminiAPI";
 
 const CodeReviewPage = () => {
   const [screens, setScreens] = useState("")
   const [seeAPIKey, setSeeAPIKey] = useState(false);
   const [loading, setLoading] = useState(false);
   const [loaderAction, setLoaderAction] = useState(null);
+  
+  // State for Language, code
+  const [language, setLanguage] = useState("")
+  const [code, setCode] = useState("");
+
+  // State for Monaco Editor Theme
+  const { theme } = useTheme();
+  const monacoTheme = getCodeRevMonacoTheme(theme);
+  
+  // Function to toggle API key visibility
   const toggleAPIKeyVisibility = () => {
     setSeeAPIKey(!seeAPIKey);
   };
-  const { theme } = useTheme();
-  const monacoTheme = getCodeRevMonacoTheme(theme);
 
+  const onLanguageChange = (e) => {
+    setLanguage(e);
+    setCode("");
+  }
+
+  // Function for editor options
   const editorOptions = useMemo(
     () => ({
       minimap: { enabled: false },
@@ -401,6 +415,18 @@ const CodeReviewPage = () => {
     },
   ];
 
+  // AI API Functions
+  const reviewCode = async () => {
+    if(!language || !code) return;
+    const response = await geminiAI(code, language);
+    try {
+      const res = JSON.parse(response);
+      console.log('This the API response', res)
+    } catch (error) {
+      console.error('Error parsing API response', error);
+    }
+  }
+
   const reviewSteps = [
     { text: "Parsing your code" },
     { text: "Scanning for bugs and security issues" },
@@ -438,7 +464,7 @@ const CodeReviewPage = () => {
 
           {/* Language Selector */}
           <div className="w-full shrink-0 sm:w-44">
-          <Combobox items={codingLanguage} defaultValue={codingLanguage[0]}>
+          <Combobox items={codingLanguage} onValueChange={onLanguageChange}>
             <ComboboxInput placeholder="Choose Language" className="w-full" />
             <ComboboxContent>
               <ComboboxEmpty>No items found.</ComboboxEmpty>
@@ -457,11 +483,13 @@ const CodeReviewPage = () => {
         {/* Action Buttons*/}
         <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-4">
           <Button
-            className="h-auto min-h-9 w-full px-3 py-2.5 text-balance hover:bg-secondary/90 sm:p-4"
+            className="w-full px-3 py-2.5 text-balance hover:bg-secondary/90 sm:p-4"
+            disabled={!language || !code}
             onClick={() => {
               setLoaderAction("review");
               setLoading(true);
               setScreens("");
+              reviewCode();
             }}
           >
             <WandSparkles className="size-4 shrink-0" />
@@ -469,7 +497,8 @@ const CodeReviewPage = () => {
           </Button>
           <Button
             variant='outline'
-            className='h-auto min-h-9 w-full bg-transparent px-3 py-2.5 font-medium text-balance hover:bg-primary/10 sm:p-4'
+            className='w-full bg-transparent px-3 py-2.5 font-medium text-balance hover:bg-primary/10 sm:p-4'
+            disabled={!language || !code}
             onClick={() => {
               setLoaderAction("fix");
               setLoading(true);
@@ -479,13 +508,14 @@ const CodeReviewPage = () => {
             <Bug className="size-4 shrink-0" />
             Fix Code
           </Button>
-          <Button variant='outline' className='h-auto min-h-9 w-full bg-transparent px-3 py-2.5 font-medium text-balance hover:bg-primary/10 sm:p-4'>
+          <Button variant='outline' className='w-full bg-transparent px-3 py-2.5 font-medium text-balance hover:bg-primary/10 sm:p-4' disabled={!language || !code}>
             <Brain className="size-4 shrink-0" />
             Explain Code
           </Button>
           <Button
             variant="outline"
-            className="h-auto min-h-9 w-full bg-transparent px-3 py-2.5 font-medium text-balance hover:bg-primary/10 sm:p-4"
+            className="w-full bg-transparent px-3 py-2.5 font-medium text-balance hover:bg-primary/10 sm:p-4"
+            disabled={!language || !code}
           >
             <Trash className="size-4 shrink-0" />
             Clear Code
@@ -496,11 +526,12 @@ const CodeReviewPage = () => {
         <div className="mt-3 flex h-[45vh] flex-1 flex-col overflow-hidden rounded-lg border border-border sm:h-[55vh] lg:h-auto lg:min-h-[45vh] xl:min-h-[68vh]">
           <Editor
             height="100%"
-            language="javascript"
-            defaultValue="// some comment"
+            language={language.toLowerCase()}
             theme={monacoTheme}
             beforeMount={defineCodeRevThemes}
             options={editorOptions}
+            onChange={(code) => setCode(code)}
+            value={code}
           />
         </div>
 
@@ -681,3 +712,10 @@ const CodeReviewPage = () => {
 };
 
 export default CodeReviewPage;
+
+// const sum = (a, b) => {
+//   const c = a + b
+// }
+
+// console.log(sum);
+// Video duration - 2:28:05

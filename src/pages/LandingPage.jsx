@@ -79,7 +79,7 @@ const LandingPage = () => {
 
     return (
         <div>
-            <section className='relative flex min-h-screen items-center justify-center overflow-hidden scroll-smooth'>
+            <motion.section className='relative flex min-h-screen items-center justify-center overflow-hidden scroll-smooth' scrollBehavior='smooth'>
                 {/* Background */}
                 <div className="absolute inset-0">
                     <LetterGlitch
@@ -128,7 +128,7 @@ const LandingPage = () => {
                     </motion.ul>
                 </motion.div>
 
-            </section>
+            </motion.section>
 
             {/* Features */}
             <motion.section
