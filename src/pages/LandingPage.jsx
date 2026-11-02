@@ -9,6 +9,7 @@ import { SpotlightCard } from '@/components/velora/spotlight-card';
 import Signal from '@/components/flows/Signal';
 import { AnnotatedText } from '@/components/ui/annotated-text';
 import { TextHoverEffect } from '@/components/velora/text-hover-effect';
+import { SmoothScroll } from '@/components/velora/smooth-scroll';
 import { useNavigate } from 'react-router-dom';
 
 
@@ -78,8 +79,9 @@ const LandingPage = () => {
     ]
 
     return (
+        <SmoothScroll>
         <div>
-            <motion.section className='relative flex min-h-screen items-center justify-center overflow-hidden scroll-smooth' scrollBehavior='smooth'>
+            <motion.section className='relative flex min-h-screen items-center justify-center overflow-hidden'>
                 {/* Background */}
                 <div className="absolute inset-0">
                     <LetterGlitch
@@ -217,6 +219,7 @@ const LandingPage = () => {
                 </motion.div>
             </motion.footer>
         </div>
+        </SmoothScroll>
     )
 }
 

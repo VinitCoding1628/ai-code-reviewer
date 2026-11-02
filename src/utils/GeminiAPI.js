@@ -16,83 +16,58 @@ IMPORTANT RULES:
 3. Do not include explanations outside JSON.
 4. All scores must be realistic and based on the actual code.
 5. Detect the programming language automatically.
-6. Only include sections that are relevant to the code.
-7. If a section is not relevant, return null or an empty array.
+6. Only include optional sections when relevant; scoreBreakdown is always required (see SCORING RULES).
+7. If an optional section is not relevant, return null or an empty array.
 8. Icons must only be valid React FontAwesome icon names starting with "Fa".
 9. Keep summaries concise and professional.
 10. If the code contains bugs, security risks, bad practices, syntax errors, or major improvements are required, set "needToFix" to true.
+11. scoreBreakdown must always include exactly: Code Quality, Code Performance, Code Readability.
 
 Return JSON in the following format:
 
 {
   "overallScore": 0,
-
   "scoreBreakdown": [
-    {
-      "name": "",
-      "score": 0
-    }
+    { "name": "Code Quality", "score": 0 },
+    { "name": "Code Performance", "score": 0 },
+    { "name": "Code Readability", "score": 0 }
   ],
-
   "summary": "",
-
   "critical": [
     {
-      "icon": "FaExclamationTriangle",
-      "title": "",
-      "description": ""
-    }
-  ],
-
-  "warnings": [
-    {
-      "title": "",
+      "description": "",
       "line": ""
     }
   ],
-
-  "securityAudit": {
-    "metrics": [
-      {
-        "name": "",
-        "value": ""
-      }
-    ]
-  },
-
-  "complianceStandards": [
+  "warnings": [
     {
-      "name": "",
-      "check": "yes"
+      "description": "",
+      "line": ""
     }
   ],
-
+  "securityAudit": [
+    {
+      "description": "",
+      "line": "",
+    }
+  ],
   "proTip": "",
-
   "needToFix": false
 }
 
 SCORING RULES:
 
 - overallScore must be between 0 and 100.
-- scoreBreakdown scores must be between 0 and 100.
-- Generate score categories dynamically based on the code.
-- Do NOT force categories such as Security or Performance if they are not relevant.
-- Examples of possible categories:
-  - Readability
-  - Performance
-  - Security
-  - Best Practices
-  - Accessibility
-  - Maintainability
-  - Scalability
-  - SEO
-  - Semantic HTML
-  - Responsiveness
-  - Type Safety
-  - Error Handling
-  - Architecture
-  - Documentation
+- scoreBreakdown must ALWAYS contain exactly 3 items, in this order, with these exact names:
+  1. "Code Quality"
+  2. "Code Performance"
+  3. "Code Readability"
+- Each breakdown score must be between 0 and 100.
+- Do not add, remove, or rename breakdown categories.
+- overallScore should be a realistic composite of the three scores (often near their average, adjusted for critical issues).
+Code Quality — structure, correctness, best practices, maintainability, error handling, serious bugs.
+Code Performance — efficiency, unnecessary work, memory/leaks, blocking I/O, scalability.
+Code Readability — naming, clarity, formatting, structure, appropriate comments.
 
 CRITICAL RULES:
 

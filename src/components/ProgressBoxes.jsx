@@ -1,26 +1,26 @@
-import { BookOpen, CodeXml, Zap } from 'lucide-react'
+import { BookOpen, FileBracesCorner, Zap } from 'lucide-react'
 
-function getScoreTier(score) {
-  if (score < 50) {
+function getScoreTier(name) {
+  if (name === 'Code Quality') {
     return {
-      Icon: CodeXml,
+      Icon: FileBracesCorner,
       accent: 'text-rose-600 dark:text-rose-400',
     }
   }
-  if (score < 75) {
+  else if (name === 'Code Performance') {
     return {
-      Icon: BookOpen,
+      Icon: Zap,
       accent: 'text-orange-600 dark:text-orange-400',
     }
   }
   return {
-    Icon: Zap,
+    Icon: BookOpen,
     accent: 'text-emerald-600 dark:text-emerald-400',
   }
 }
 
 const ProgressBoxes = ({ name, score }) => {
-  const { Icon, accent } = getScoreTier(score)
+  const { Icon, accent } = getScoreTier(name)
 
   return (
     <div className="flex w-full items-center gap-2.5 rounded-md border border-muted-foreground/20 px-2 py-2.5 shadow">

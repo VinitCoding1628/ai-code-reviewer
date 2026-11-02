@@ -38,9 +38,10 @@ const CodeReviewPage = () => {
   const [loading, setLoading] = useState(false);
   const [loaderAction, setLoaderAction] = useState(null);
   
-  // State for Language, code
+  // State for Language, code, data
   const [language, setLanguage] = useState("")
   const [code, setCode] = useState("");
+  const [data, setData] = useState(null);
 
   // State for Monaco Editor Theme
   const { theme } = useTheme();
@@ -417,14 +418,28 @@ const CodeReviewPage = () => {
 
   // AI API Functions
   const reviewCode = async () => {
+    setLoading(true);
+    let timeout;
     if(!language || !code) return;
-    const response = await geminiAI(code, language);
     try {
+      const response = await geminiAI(code, language);
       const res = JSON.parse(response);
       console.log('This the API response', res)
+      setData(res);
+      setScreens("analyze")
+      timeout = setTimeout(() => {
+        setLoading(false)
+      }, 500)
+
     } catch (error) {
       console.error('Error parsing API response', error);
+      timeout = setTimeout(() => {
+        setLoading(false);
+      }, 500)
+      setScreens("");
     }
+
+    return () => clearTimeout(timeout);
   }
 
   const reviewSteps = [
@@ -620,7 +635,7 @@ const CodeReviewPage = () => {
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-4">
                 {/* Overall Score */}
                 <div className="flex w-full items-center gap-2.5 rounded-md border border-muted-foreground/20 px-2 py-2.5 shadow">
-                  <ScoreGuage score={90} size={55} strokeWidth={7} />
+                  <ScoreGuage score={data?.overallScore} size={55} strokeWidth={7} />
                   <div className="flex min-w-0 flex-col gap-0.5">
                     <h4 className="text-balance font-medium">Overall Score </h4>
                     <p className="text-xs text-muted-foreground">Analysis completed</p>
@@ -629,7 +644,7 @@ const CodeReviewPage = () => {
 
                 {/* Progress Boxes */}
                 {
-                  progressBoxes?.map((box) => (
+                  data?.scoreBreakdown?.map((box) => (
                     <ProgressBoxes key={box.name} name={box.name} score={box.score} />
                   ))
                 }
@@ -642,14 +657,14 @@ const CodeReviewPage = () => {
                   <h4 className="text-lg font-semibold">Summary</h4>
                 </div>
                 <p className="text-sm text-muted-foreground">
-                  Lorem ipsum dolor sit amet consectetur adipisicing elit. Quibusdam, est. Ullam fugiat vero odio deserunt quidem itaque delectus repudiandae, quibusdam maiores esse repellat, odit mollitia iste aut iusto! Doloremque, porro.
+                  {data?.summary}
                 </p>
               </div>
 
               {/* Criticals and Warnings */}
-              <DetailedErrors heading="Critical Issues" description={criticalIssues} />
-              <DetailedErrors heading="Warnings" description={warnings} />
-              <DetailedErrors heading="Security Issues" description={securityIssues} />
+              <DetailedErrors heading="Critical Issues" description={data?.critical} />
+              <DetailedErrors heading="Warnings" description={data?.warnings} />
+              <DetailedErrors heading="Security Issues" description={data?.securityAudit} />
 
               {/* Pro Tip */}
               <div className="border border-muted-foreground/20 rounded p-2 flex flex-col gap-2">
@@ -658,7 +673,7 @@ const CodeReviewPage = () => {
                   <h4 className="text-lg font-semibold">Pro Tip</h4>
                 </div>
                 <p className="text-sm text-muted-foreground">
-                  Lorem ipsum dolor sit amet consectetur adipisicing elit. Quibusdam, est. Ullam fugiat vero odio deserunt quidem itaque delectus repudiandae, quibusdam maiores esse repellat, odit mollitia iste aut iusto! Doloremque, porro.
+                  {data?.proTip}
                 </p>
               </div>
             </div>
