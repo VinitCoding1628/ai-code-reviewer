@@ -164,7 +164,7 @@ export function MultiStepLoader({
             {title}
           </h2>
         )}
-        <div className="relative h-72 overflow-hidden [mask-image:linear-gradient(to_bottom,transparent,black_20%,black_80%,transparent)]">
+        <div className="relative h-72 overflow-hidden mask-[linear-gradient(to_bottom,transparent,black_20%,black_80%,transparent)]">
           <ol
             ref={listRef}
             className="absolute inset-x-0 top-0 m-0 list-none p-0 transition-transform duration-500 ease-out motion-reduce:transition-none"

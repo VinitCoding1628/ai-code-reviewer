@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import Editor from "@monaco-editor/react";
-import { Brain, Bug, Database, FileText, Key, KeyIcon, Lightbulb, MessageSquareCode, RefreshCcw, Trash, WandSparkles, EyeIcon, EyeOffIcon, Loader2, Check } from "lucide-react";
+import { Brain, Bug, Database, FileText, Key, KeyIcon, Lightbulb, MessageSquareCode, RefreshCcw, Trash, WandSparkles, EyeIcon, EyeOffIcon, Loader2, Check, CheckCheckIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Combobox,
@@ -237,7 +237,7 @@ const CodeReviewPage = () => {
 
   const isCurrentApiKeyVerified =
     Boolean(verifiedApiKey) && apiKey.trim() === verifiedApiKey;
-  
+
 
   // Function to test the API key
   const testAPIKey = async () => {
@@ -300,15 +300,19 @@ const CodeReviewPage = () => {
     setApiKey("");
     setVerifiedApiKey("");
     localStorage.removeItem("userApiKey");
-    localStorage.removeItem("apiUsage");
     setTestAPIKeyStatus(false);
-  }
+  };
 
   // Variable to get the active loader steps
   const activeLoaderSteps =
     loaderAction === "fix" ? fixSteps : loaderAction === "explain" ? explainSteps : reviewSteps;
   const activeLoaderTitle =
     loaderAction === "fix" ? "Applying code fixes" : loaderAction === "explain" ? "Generating explanation" : "Review in progress";
+
+  const freeTierLimitReached = !testAPIKeyStatus && apiUsage >= 5;
+  const actionButtonsDisabled =
+    !hasLanguage || !code || freeTierLimitReached || loading;
+
   return (
     <section className="mx-auto flex w-full flex-col gap-4 px-3 pb-3 pt-14 sm:px-5 lg:flex-row lg:items-stretch">
       {/* Code Editor */}
@@ -348,7 +352,7 @@ const CodeReviewPage = () => {
         <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-4">
           <Button
             className="w-full px-3 py-2.5 text-balance hover:bg-secondary/90 sm:p-4"
-            disabled={!hasLanguage || !code || apiUsage === 5}
+            disabled={actionButtonsDisabled}
             onClick={() => {
               setLoaderAction("review");
               setLoading(true);
@@ -362,7 +366,7 @@ const CodeReviewPage = () => {
           <Button
             variant='outline'
             className='w-full bg-transparent px-3 py-2.5 font-medium text-balance hover:bg-primary/10 sm:p-4'
-            disabled={!hasLanguage || !code || apiUsage === 5}
+            disabled={actionButtonsDisabled}
             onClick={() => {
               setLoaderAction("fix");
               setLoading(true);
@@ -373,7 +377,7 @@ const CodeReviewPage = () => {
             <Bug className="size-4 shrink-0" />
             Fix Code
           </Button>
-          <Button variant='outline' className='w-full bg-transparent px-3 py-2.5 font-medium text-balance hover:bg-primary/10 sm:p-4' disabled={!hasLanguage || !code || apiUsage === 5}
+          <Button variant='outline' className='w-full bg-transparent px-3 py-2.5 font-medium text-balance hover:bg-primary/10 sm:p-4' disabled={actionButtonsDisabled}
             onClick={
               () => {
                 setLoaderAction("explain");
@@ -575,10 +579,34 @@ const CodeReviewPage = () => {
       <div className="flex min-w-0 w-full flex-col overflow-hidden rounded-md bg-card p-3 shadow sm:p-4 lg:w-[55%] lg:min-h-0">
         {/* Title */}
         <div className="shrink-0 flex flex-col gap-1">
-          <h2 className="text-lg font-semibold sm:text-xl">AI Code Review Results</h2>
-          <p className="text-sm text-muted-foreground">
-            Paste your code below and get AI powered review with suggestions
-          </p>
+          {
+            screens === "analyze" ? (
+              <div>
+                <h2 className="text-lg font-semibold sm:text-xl">AI Code Review Results</h2>
+                <p className="text-sm text-muted-foreground">
+                  Paste your code below and get AI powered review with suggestions
+                </p>
+              </div>
+            ) : screens === "fix" ? (
+              <div>
+                <h2 className="text-lg font-semibold sm:text-xl">AI Code Fix Results</h2>
+                <p className="text-sm text-muted-foreground">
+                  Fixed code as per the AI's suggestions.
+                </p>
+              </div>
+            ) : screens === "explain" ? (
+              <div>
+                <h2 className="text-lg font-semibold sm:text-xl">AI Code Explanation</h2>
+                <p className="text-sm text-muted-foreground">
+                  Get an explanation of your code from AI.
+                </p>
+              </div>
+            ) : (
+              <div>
+                <h2 className="text-lg font-semibold sm:text-xl">No Results Yet</h2>
+              </div>
+            )
+          }
         </div>
 
         {/* Screens */}
@@ -633,14 +661,12 @@ const CodeReviewPage = () => {
                 </div>
               </div>
             ) : screens === "fix" ? (
-              <div className="flex flex-col gap-4 pt-4">
-                <div className="flex flex-col gap-2 rounded border border-muted-foreground/20 p-2">
-                  <div className="flex items-center gap-1.5">
-                    <Bug className="size-4 shrink-0 text-primary" />
-                    <h4 className="text-lg font-semibold">Code fixes ready</h4>
-                  </div>
-                  <p className="text-sm text-muted-foreground">
-                    Fixable issues were addressed automatically. Compare the updated code in the editor and run Review with AI again if you want a full report.
+              <div className="h-full flex items-center justify-center">
+                <div className="flex flex-col gap-2 items-center justify-center bg-primary/10 p-10 rounded-lg shadow">
+                  <CheckCheckIcon className="size-10 shrink-0 text-primary" />
+                  <h4 className="text-xl font-semibold">Code fixed successfully</h4>
+                  <p className="text-lg text-muted-foreground text-center">
+                    All detected issues have been resolved using AI.
                   </p>
                 </div>
               </div>
@@ -655,7 +681,7 @@ const CodeReviewPage = () => {
                 />
               </div>
             ) : (
-              <div className="flex min-h-[min(50vh,24rem)] flex-1 flex-col items-center justify-center gap-2 px-2 py-8 text-center lg:min-h-0">
+              <div className="flex min-h-[min(60vh,29rem)] flex-1 flex-col items-center justify-center gap-2 px-2 py-8 text-center lg:min-h-0">
                 <MessageSquareCode className="size-10 sm:size-12" />
                 <h3 className="text-lg font-semibold sm:text-xl">No Results Yet</h3>
                 <p className="max-w-md text-sm text-muted-foreground">
@@ -671,7 +697,7 @@ const CodeReviewPage = () => {
       <MultiStepLoader
         loading={loading}
         steps={activeLoaderSteps}
-        duration={1400}
+        duration={1600}
         loop
         title={activeLoaderTitle}
         onComplete={() => {
