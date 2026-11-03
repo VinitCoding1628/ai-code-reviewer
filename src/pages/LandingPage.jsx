@@ -81,7 +81,7 @@ const LandingPage = () => {
     return (
         <SmoothScroll>
         <div>
-            <motion.section className='relative flex min-h-screen items-center justify-center overflow-hidden'>
+            <motion.section className='relative flex min-h-screen items-center justify-center overflow-hidden bg-card'>
                 {/* Background */}
                 <div className="absolute inset-0">
                     <LetterGlitch
