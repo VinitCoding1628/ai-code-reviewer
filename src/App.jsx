@@ -4,6 +4,7 @@ import { Routes, Route} from 'react-router-dom'
 import LandingPage from './pages/LandingPage'
 import CodeReviewPage from './pages/CodeReviewPage'
 import ErrorPage from './pages/ErrorPage'
+import { Toaster } from 'sonner'
 
 
 const App = () => {
@@ -15,6 +16,7 @@ const App = () => {
         <Route path='/code-review' element={<CodeReviewPage />}/>
         <Route path='*' element={<ErrorPage />}/>
       </Routes>
+      <Toaster />
     </>
   )
 }

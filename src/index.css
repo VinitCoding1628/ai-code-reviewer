@@ -49,6 +49,7 @@
     --animate-shimmer: shimmer 2.5s linear infinite;
     --color-card-hover: var(--card-hover);
     --color-code-editor: var(--code-editor);
+    --color-code-block: var(--code-block);
   @keyframes shimmer {
   from {
     background-position: 200% 0;
@@ -102,6 +103,7 @@
     --brand-via: oklch(0.623 0.214 260);
     --brand-to: oklch(0.685 0.169 237);
     --code-editor:#f5fbf9;
+    --code-block:#f5fbf9;
 }
 
 .dark {
@@ -142,6 +144,7 @@
     --brand-via: oklch(0.707 0.165 255);
     --brand-to: oklch(0.746 0.16 233);
     --code-editor:#0f3729;
+    --code-block:#0d261d;
 }
 
 ::selection {
@@ -183,3 +186,34 @@
 .dark::view-transition-new(root) {
   z-index: 9999;
 }
+
+/* Override theme colors for your custom dark layout */
+.wmde-markdown-var.custom-dark-theme {
+  /* Main background and text colors */
+  --color-canvas-default: var(--card);
+  --color-fg-default: var(--foreground);
+  --color-accent-fg: var(--primary);
+  --color-border-default: var(--border);
+  --color-border-muted: var(--muted-foreground);
+  --color-neutral-muted: var(--muted);
+}
+
+/* Target multi-line code blocks */
+.wmde-markdown pre,
+.wmde-markdown-var pre {
+  background-color: var(--code-block) !important;
+}
+
+/* Target inline code blocks (if needed) */
+.wmde-markdown code,
+.wmde-markdown-var code {
+  background-color: var(--code-block) !important;
+}
+
+[data-color-mode="dark"] {
+  --color-canvas-default: #0d1117; /* Background */
+  --color-fg-default: #e6edf3;     /* Main Text */
+  --color-accent-fg: #2f81f7;     /* Links */
+  --color-border-default: #30363d; /* Separators / Table borders */
+}
+

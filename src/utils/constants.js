@@ -1,3 +1,52 @@
+/** Display labels from the combobox → Monaco Editor language ids */
+export const monacoLanguageByLabel = {
+  JavaScript: "javascript",
+  TypeScript: "typescript",
+  Python: "python",
+  Java: "java",
+  C: "c",
+  "C++": "cpp",
+  "C#": "csharp",
+  Go: "go",
+  Rust: "rust",
+  PHP: "php",
+  Ruby: "ruby",
+  Swift: "swift",
+  Kotlin: "kotlin",
+  Dart: "dart",
+  R: "r",
+  MATLAB: "matlab",
+  SQL: "sql",
+  HTML: "html",
+  CSS: "css",
+  Bash: "shell",
+  PowerShell: "powershell",
+  Perl: "perl",
+  Scala: "scala",
+  "Objective-C": "objective-c",
+  Lua: "lua",
+  Haskell: "haskell",
+  Elixir: "elixir",
+  Clojure: "clojure",
+  "F#": "fsharp",
+  "Visual Basic .NET": "vb",
+  Fortran: "fortran",
+  Julia: "julia",
+  Solidity: "solidity",
+  Groovy: "groovy",
+  Erlang: "erlang",
+  OCaml: "ocaml",
+  Lisp: "lisp",
+  VBA: "vb",
+};
+
+export function getMonacoLanguage(label) {
+  if (label == null || typeof label !== "string" || !label.trim()) {
+    return "plaintext";
+  }
+  return monacoLanguageByLabel[label.trim()] ?? "plaintext";
+}
+
 export const codingLanguage = [
     "JavaScript",
     "TypeScript",

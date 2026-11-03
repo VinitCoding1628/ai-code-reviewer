@@ -15,15 +15,9 @@ import {
   defineCodeRevThemes,
   getCodeRevMonacoTheme,
 } from "@/lib/monaco-themes";
-import { codingLanguage } from "@/utils/constants";
+import { codingLanguage, getMonacoLanguage } from "@/utils/constants";
 import ScoreGuage from "@/components/charts/ScoreGuage";
 import ProgressBoxes from "@/components/ProgressBoxes";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion"
 import DetailedErrors from "@/components/DetailedErrors";
 import { Modal, ModalContent, ModalFooter, ModalTrigger } from "@/components/velora/animated-modal";
 import { Separator } from "@/components/ui/separator";
@@ -31,17 +25,22 @@ import { Field, FieldLabel } from '@/components/ui/field';
 import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group";
 import { MultiStepLoader } from "@/components/velora/multi-step-loader";
 import { geminiAI } from "@/utils/GeminiAPI";
+import MarkdownPreview from "@uiw/react-markdown-preview";
+import '../../src/App.css'
+import { toast } from "sonner";
 
 const CodeReviewPage = () => {
+  // State for screens and loader action
   const [screens, setScreens] = useState("")
   const [seeAPIKey, setSeeAPIKey] = useState(false);
   const [loading, setLoading] = useState(false);
   const [loaderAction, setLoaderAction] = useState(null);
   
-  // State for Language, code, data
+  // State for Language, code, API Reviewed data, Explanation data
   const [language, setLanguage] = useState("")
   const [code, setCode] = useState("");
   const [data, setData] = useState(null);
+  const [explainCodeData, setExplainCodeData] = useState("");
 
   // State for Monaco Editor Theme
   const { theme } = useTheme();
@@ -52,10 +51,22 @@ const CodeReviewPage = () => {
     setSeeAPIKey(!seeAPIKey);
   };
 
-  const onLanguageChange = (e) => {
-    setLanguage(e);
+  // Function to change the language
+  const onLanguageChange = (value) => {
+    setLanguage(value ?? "");
     setCode("");
-  }
+  };
+
+  // Function to get the Monaco language
+  const monacoLanguage = useMemo(
+    () => getMonacoLanguage(language),
+    [language]
+  );
+
+  // Function to check if the language is valid
+  const hasLanguage = Boolean(
+    typeof language === "string" && language.trim()
+  );
 
   // Function for editor options
   const editorOptions = useMemo(
@@ -72,359 +83,22 @@ const CodeReviewPage = () => {
     []
   );
 
-  const progressBoxes = [
-    {
-      name: 'Code Quality',
-      score: 70
-    },
-    {
-      name: 'Code Readability',
-      score: 80
-    },
-    {
-      name: 'Code Performance',
-      score: 10
-    }
-  ]
-
-  // const criticalIssues = []
-  const criticalIssues = [
-    {
-
-      title: "SQL Injection Risk",
-      description:
-        "Direct concatenation of parameters into query string",
-      severity: "critical",
-      category: "security",
-      line: 2,
-      icon: "shield-alert",
-    },
-    {
-
-      title: "Infinite Loop",
-      description:
-        "While loop at line 5 lacks a definitive escape condition for network failure.",
-      severity: "critical",
-      category: "performance",
-      line: 5,
-      icon: "refresh-cw",
-    },
-    {
-
-      title: "Hardcoded API Secret",
-      description:
-        "Sensitive API credentials are hardcoded in the source code and may be exposed.",
-      severity: "critical",
-      category: "security",
-      line: 12,
-      icon: "key-round",
-    },
-    {
-
-      title: "Remote Code Execution",
-      description:
-        "Untrusted input is passed to an execution function, potentially allowing arbitrary code execution.",
-      severity: "critical",
-      category: "security",
-      line: 18,
-      icon: "terminal",
-    },
-    {
-
-      title: "Sensitive Data Exposure",
-      description:
-        "User credentials and authentication tokens are written to application logs.",
-      severity: "critical",
-      category: "security",
-      line: 24,
-      icon: "lock-keyhole",
-    },
-    {
-
-      title: "Missing Authentication Check",
-      description:
-        "A protected API endpoint processes requests without verifying the user's identity.",
-      severity: "critical",
-      category: "security",
-      line: 31,
-      icon: "shield-alert",
-    },
-    {
-
-      title: "Unsafe HTML Injection",
-      description:
-        "Untrusted HTML content is rendered without sanitization, potentially enabling XSS attacks.",
-      severity: "critical",
-      category: "security",
-      line: 38,
-      icon: "code",
-    },
-    {
-
-      title: "Unbounded Retry Loop",
-      description:
-        "Failed network requests are retried indefinitely without a maximum retry count or backoff strategy.",
-      severity: "critical",
-      category: "reliability",
-      line: 45,
-      icon: "repeat",
-    },
-    {
-
-      title: "Race Condition",
-      description:
-        "Concurrent operations modify shared state without synchronization, potentially causing inconsistent results.",
-      severity: "critical",
-      category: "concurrency",
-      line: 52,
-      icon: "git-branch",
-    },
-    {
-      title: "Uncaught Promise Rejection",
-      description:
-        "An asynchronous operation can fail without proper error handling, causing unexpected application behavior.",
-      severity: "critical",
-      category: "reliability",
-      line: 61,
-      icon: "alert-triangle",
-    },
-  ];
-
-  const warnings = [
-    {
-      id: 1,
-      title: "Unused Variable",
-      description:
-        "Variable 'userData' is declared but never used, increasing unnecessary code clutter.",
-      severity: "warning",
-      category: "code-quality",
-      line: 8,
-      icon: "circle-alert",
-    },
-    {
-      id: 2,
-      title: "Missing React Key",
-      description:
-        "Elements rendered inside a list are missing a unique key prop, which may cause rendering inconsistencies.",
-      severity: "warning",
-      category: "react",
-      line: 15,
-      icon: "list-check",
-    },
-    {
-      id: 3,
-      title: "Missing useEffect Dependency",
-      description:
-        "The useEffect hook references a variable that is missing from its dependency array, potentially causing stale values.",
-      severity: "warning",
-      category: "react",
-      line: 23,
-      icon: "git-branch",
-    },
-    {
-      id: 4,
-      title: "Unnecessary Re-render",
-      description:
-        "A new object is created on every render, potentially triggering unnecessary child component re-renders.",
-      severity: "warning",
-      category: "performance",
-      line: 31,
-      icon: "refresh-cw",
-    },
-    {
-      id: 5,
-      title: "Missing Error Handling",
-      description:
-        "The API request does not handle failed responses, which may leave the UI in an unexpected state.",
-      severity: "warning",
-      category: "reliability",
-      line: 39,
-      icon: "alert-triangle",
-    },
-    {
-      id: 6,
-      title: "Hardcoded Configuration",
-      description:
-        "The API base URL is hardcoded instead of being managed through environment-specific configuration.",
-      severity: "warning",
-      category: "maintainability",
-      line: 46,
-      icon: "settings",
-    },
-    {
-      id: 7,
-      title: "Potential Memory Leak",
-      description:
-        "An asynchronous operation updates component state after unmounting because cleanup or cancellation is missing.",
-      severity: "warning",
-      category: "performance",
-      line: 54,
-      icon: "memory-stick",
-    },
-    {
-      id: 8,
-      title: "Direct DOM Manipulation",
-      description:
-        "The component modifies DOM elements directly instead of using React state, refs, or declarative rendering where appropriate.",
-      severity: "warning",
-      category: "react",
-      line: 62,
-      icon: "code",
-    },
-    {
-      id: 9,
-      title: "Missing Input Validation",
-      description:
-        "User-provided input is processed without sufficient validation, potentially causing unexpected behavior.",
-      severity: "warning",
-      category: "validation",
-      line: 70,
-      icon: "shield-alert",
-    },
-    {
-      id: 10,
-      title: "Large Component",
-      description:
-        "The component combines multiple responsibilities and could be split into smaller, reusable components.",
-      severity: "warning",
-      category: "maintainability",
-      line: 85,
-      icon: "component",
-    },
-  ];
-
-  const securityIssues = [
-    {
-      id: 1,
-      title: "SQL Injection",
-      description:
-        "User-controlled input is concatenated directly into an SQL query, potentially allowing unauthorized database access.",
-      severity: "critical",
-      category: "injection",
-      line: 2,
-      icon: "database",
-    },
-    {
-      id: 2,
-      title: "Hardcoded API Secret",
-      description:
-        "A sensitive API key is embedded in the source code and could be exposed through version control or client-side bundles.",
-      severity: "critical",
-      category: "secrets-management",
-      line: 12,
-      icon: "key-round",
-    },
-    {
-      id: 3,
-      title: "Cross-Site Scripting (XSS)",
-      description:
-        "Untrusted content is rendered as HTML without adequate sanitization, potentially enabling script injection.",
-      severity: "critical",
-      category: "injection",
-      line: 18,
-      icon: "code",
-    },
-    {
-      id: 4,
-      title: "Missing Authentication",
-      description:
-        "A protected resource is accessible without verifying the identity of the requesting user.",
-      severity: "critical",
-      category: "authentication",
-      line: 25,
-      icon: "shield-alert",
-    },
-    {
-      id: 5,
-      title: "Broken Access Control",
-      description:
-        "The application does not adequately verify resource ownership or user permissions before allowing sensitive operations.",
-      severity: "critical",
-      category: "authorization",
-      line: 32,
-      icon: "lock-keyhole",
-    },
-    {
-      id: 6,
-      title: "Sensitive Data Exposure",
-      description:
-        "Authentication tokens or confidential user information are written to application logs.",
-      severity: "critical",
-      category: "data-protection",
-      line: 40,
-      icon: "eye",
-    },
-    {
-      id: 7,
-      title: "Insecure Direct Object Reference",
-      description:
-        "A resource is retrieved using a user-supplied identifier without verifying that the requester has permission to access it.",
-      severity: "high",
-      category: "authorization",
-      line: 47,
-      icon: "file-warning",
-    },
-    {
-      id: 8,
-      title: "Missing CSRF Protection",
-      description:
-        "A state-changing request relies on cookie-based authentication without appropriate cross-site request forgery protections.",
-      severity: "high",
-      category: "request-security",
-      line: 54,
-      icon: "shield-check",
-    },
-    {
-      id: 9,
-      title: "Insecure Storage of Tokens",
-      description:
-        "Authentication tokens are stored in localStorage, increasing exposure if an XSS vulnerability is exploited.",
-      severity: "high",
-      category: "session-management",
-      line: 61,
-      icon: "database",
-    },
-    {
-      id: 10,
-      title: "Missing Input Validation",
-      description:
-        "Untrusted input is processed without adequate validation, potentially enabling injection or unexpected application behavior.",
-      severity: "medium",
-      category: "input-validation",
-      line: 68,
-      icon: "shield-alert",
-    },
-    {
-      id: 11,
-      title: "Insecure HTTP Request",
-      description:
-        "Sensitive information may be transmitted over an unencrypted HTTP connection instead of HTTPS.",
-      severity: "high",
-      category: "transport-security",
-      line: 75,
-      icon: "globe",
-    },
-    {
-      id: 12,
-      title: "Overly Permissive CORS",
-      description:
-        "The server may allow untrusted origins to access protected resources due to overly permissive cross-origin settings.",
-      severity: "medium",
-      category: "configuration",
-      line: 82,
-      icon: "shield",
-    },
-  ];
+  // Function to clear the code
+  const clearCode = () => {
+    setCode("");
+  }
 
   // AI API Functions
   const reviewCode = async () => {
     setLoading(true);
     let timeout;
-    if(!language || !code) return;
+    if (!language?.trim() || !code) {
+      setLoading(false);
+      return;
+    }
     try {
-      const response = await geminiAI(code, language);
+      const response = await geminiAI(code, language, "analyze");
       const res = JSON.parse(response);
-      console.log('This the API response', res)
       setData(res);
       setScreens("analyze")
       timeout = setTimeout(() => {
@@ -433,6 +107,7 @@ const CodeReviewPage = () => {
 
     } catch (error) {
       console.error('Error parsing API response', error);
+      toast.error('Error while reviewing your code from API')
       timeout = setTimeout(() => {
         setLoading(false);
       }, 500)
@@ -442,6 +117,62 @@ const CodeReviewPage = () => {
     return () => clearTimeout(timeout);
   }
 
+  const explainCode = async () => {
+    setLoading(true);
+    let timeout;
+    if (!language?.trim() || !code) {
+      setLoading(false);
+      return;
+    }
+    try {
+      const response = await geminiAI(code, language, "explain");
+      // const res = JSON.parse(response);
+      setExplainCodeData(response);
+      setScreens("explain")
+      timeout = setTimeout(() => {
+        setLoading(false)
+      }, 500)
+
+    } catch (error) {
+      console.error('Error parsing API response', error);
+      toast.error('Error while generating explanation for your code from API')
+      timeout = setTimeout(() => {
+        setLoading(false);
+      }, 500)
+      setScreens("");
+    }
+
+    return () => clearTimeout(timeout);
+  }
+  
+  const fixCode = async () => {
+    setLoading(true);
+    let timeout;
+    if (!language?.trim() || !code) {
+      setLoading(false);
+      return;
+    }
+    try {
+      const response = await geminiAI(code, language, "fix");
+      setCode(response);
+      setScreens("fix")
+      timeout = setTimeout(() => {
+        setLoading(false)
+      }, 500)
+
+    } catch (error) {
+      console.error('Error parsing API response', error);
+      toast.error('Error while fixing your code using Gemini API')
+      timeout = setTimeout(() => {
+        setLoading(false);
+      }, 500)
+      setScreens("");
+    }
+
+    return () => clearTimeout(timeout);
+  }
+
+  // Array for the review loader steps
   const reviewSteps = [
     { text: "Parsing your code" },
     { text: "Scanning for bugs and security issues" },
@@ -451,6 +182,7 @@ const CodeReviewPage = () => {
     { text: "Finalizing your review" },
   ];
 
+  // Array for the fix loader steps
   const fixSteps = [
     { text: "Scanning for fixable issues" },
     { text: "Prioritizing critical and safe fixes" },
@@ -460,10 +192,18 @@ const CodeReviewPage = () => {
     { text: "Preparing updated code" },
   ];
 
+  // Array for the explain loader steps
+  const explainSteps = [
+    { text: "Parsing your code" },
+    { text: "Generating explanation" },
+    { text: "Finalizing your explanation" },
+  ];
+
+  // Variable to get the active loader steps
   const activeLoaderSteps =
-    loaderAction === "fix" ? fixSteps : reviewSteps;
+    loaderAction === "fix" ? fixSteps : loaderAction === "explain" ? explainSteps : reviewSteps;
   const activeLoaderTitle =
-    loaderAction === "fix" ? "Applying code fixes" : "Review in progress";
+    loaderAction === "fix" ? "Applying code fixes" : loaderAction === "explain" ? "Generating explanation" : "Review in progress";
   return (
     <section className="mx-auto flex w-full flex-col gap-4 px-3 pb-3 pt-14 sm:px-5 lg:flex-row lg:items-stretch">
       {/* Code Editor */}
@@ -479,7 +219,11 @@ const CodeReviewPage = () => {
 
           {/* Language Selector */}
           <div className="w-full shrink-0 sm:w-44">
-          <Combobox items={codingLanguage} onValueChange={onLanguageChange}>
+          <Combobox
+            items={codingLanguage}
+            value={language || null}
+            onValueChange={onLanguageChange}
+          >
             <ComboboxInput placeholder="Choose Language" className="w-full" />
             <ComboboxContent>
               <ComboboxEmpty>No items found.</ComboboxEmpty>
@@ -499,7 +243,7 @@ const CodeReviewPage = () => {
         <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-4">
           <Button
             className="w-full px-3 py-2.5 text-balance hover:bg-secondary/90 sm:p-4"
-            disabled={!language || !code}
+            disabled={!hasLanguage || !code}
             onClick={() => {
               setLoaderAction("review");
               setLoading(true);
@@ -513,24 +257,35 @@ const CodeReviewPage = () => {
           <Button
             variant='outline'
             className='w-full bg-transparent px-3 py-2.5 font-medium text-balance hover:bg-primary/10 sm:p-4'
-            disabled={!language || !code}
+            disabled={!hasLanguage || !code}
             onClick={() => {
               setLoaderAction("fix");
               setLoading(true);
               setScreens("");
+              fixCode();
             }}
           >
             <Bug className="size-4 shrink-0" />
             Fix Code
           </Button>
-          <Button variant='outline' className='w-full bg-transparent px-3 py-2.5 font-medium text-balance hover:bg-primary/10 sm:p-4' disabled={!language || !code}>
-            <Brain className="size-4 shrink-0" />
+          <Button variant='outline' className='w-full bg-transparent px-3 py-2.5 font-medium text-balance hover:bg-primary/10 sm:p-4' disabled={!hasLanguage || !code}
+          onClick={
+            () => {
+              setLoaderAction("explain");
+              setLoading(true);
+              setScreens("");
+              explainCode();
+            }
+            }
+          >
+            <Brain className="size-4 shrink-0"/>
             Explain Code
           </Button>
           <Button
             variant="outline"
             className="w-full bg-transparent px-3 py-2.5 font-medium text-balance hover:bg-primary/10 sm:p-4"
-            disabled={!language || !code}
+            disabled={!hasLanguage || !code}
+            onClick={() => clearCode()}
           >
             <Trash className="size-4 shrink-0" />
             Clear Code
@@ -541,7 +296,7 @@ const CodeReviewPage = () => {
         <div className="mt-3 flex h-[45vh] flex-1 flex-col overflow-hidden rounded-lg border border-border sm:h-[55vh] lg:h-auto lg:min-h-[45vh] xl:min-h-[68vh]">
           <Editor
             height="100%"
-            language={language.toLowerCase()}
+            language={monacoLanguage}
             theme={monacoTheme}
             beforeMount={defineCodeRevThemes}
             options={editorOptions}
@@ -690,8 +445,15 @@ const CodeReviewPage = () => {
               </div>
             </div>
           ) : screens === "explain" ? (
-            <>
-            </>
+            <div className="pt-4 min-h-0 flex-1">
+              <MarkdownPreview
+                source={explainCodeData}
+                // data-color-mode={theme}
+                
+                wrapperElement={{ "data-color-mode": `${theme}` }}
+                className="max-h-[80vh] overflow-y-auto rounded-lg border border-muted-foreground/20 bg-card p-4 text-foreground [&_.wmde-markdown]:bg-transparent [&_.wmde-markdown]:text-inherit wmde-markdown-var custom-dark-theme"
+              />
+            </div>
           ) : (
             <div className="flex min-h-[min(50vh,24rem)] flex-1 flex-col items-center justify-center gap-2 px-2 py-8 text-center lg:min-h-0">
               <MessageSquareCode className="size-10 sm:size-12" />
@@ -709,12 +471,15 @@ const CodeReviewPage = () => {
       <MultiStepLoader
         loading={loading}
         steps={activeLoaderSteps}
-        duration={1400}
+        duration={1200}
+        loop
         title={activeLoaderTitle}
         onComplete={() => {
           const action = loaderAction;
           setLoading(false);
-          setScreens(action === "fix" ? "fix" : "analyze");
+          if (action === "fix") {
+            setScreens("fix");
+          }
           setLoaderAction(null);
         }}
         onClose={() => {
@@ -727,10 +492,3 @@ const CodeReviewPage = () => {
 };
 
 export default CodeReviewPage;
-
-// const sum = (a, b) => {
-//   const c = a + b
-// }
-
-// console.log(sum);
-// Video duration - 2:28:05

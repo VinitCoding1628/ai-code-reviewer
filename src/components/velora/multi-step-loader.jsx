@@ -29,6 +29,7 @@ export function MultiStepLoader({
   const [wasLoading, setWasLoading] = useState(loading);
   const [paused, setPaused] = useState(false);
   const completeRef = useRef(onComplete);
+  const stepsLengthRef = useRef(steps.length);
   useEffect(() => {
     completeRef.current = onComplete;
   });
@@ -36,8 +37,22 @@ export function MultiStepLoader({
   // Restart from the first step each time the overlay opens.
   if (loading !== wasLoading) {
     setWasLoading(loading);
-    if (loading) setAuto(0);
+    if (loading) {
+      setAuto(0);
+      setPaused(false);
+    }
   }
+
+  useEffect(() => {
+    if (!loading) {
+      stepsLengthRef.current = steps.length;
+      return;
+    }
+    if (steps.length !== stepsLengthRef.current) {
+      stepsLengthRef.current = steps.length;
+      setAuto(0);
+    }
+  }, [loading, steps.length]);
 
   const index = Math.min(Math.max(current ?? auto, 0), steps.length);
   const active = Math.min(index, steps.length - 1);
@@ -59,13 +74,18 @@ export function MultiStepLoader({
     };
   }, [loading]);
 
-  // Auto-advance (uncontrolled only). A loop holds while hovered or focused.
+  // Auto-advance (uncontrolled only). Non-loop mode pauses while hovered or focused.
   useEffect(() => {
-    if (!loading || current !== undefined || (loop && paused)) return;
+    if (!loading || current !== undefined || (!loop && paused)) return;
+    if (steps.length === 0) return;
     const done = auto >= steps.length;
     const t = setTimeout(() => {
-      if (done) completeRef.current?.();
-      else setAuto((i) => (loop ? (i + 1) % steps.length : i + 1));
+      if (done) {
+        if (loop) setAuto(0);
+        else completeRef.current?.();
+      } else {
+        setAuto((i) => (loop ? (i + 1) % steps.length : i + 1));
+      }
     }, duration);
     return () => clearTimeout(t);
   }, [loading, current, loop, paused, auto, steps.length, duration]);
