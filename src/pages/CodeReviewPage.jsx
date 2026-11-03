@@ -438,14 +438,14 @@ const CodeReviewPage = () => {
                   Remove API Key
                 </Button>}>
                 </AlertDialogTrigger>
-                <AlertDialogContent>
+                <AlertDialogContent className="border border-border bg-card text-foreground ring-border/20">
                   <AlertDialogHeader>
                     <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                     <AlertDialogDescription>
                       This action cannot be undone. This will permanently remove your API key.
                     </AlertDialogDescription>
                   </AlertDialogHeader>
-                  <AlertDialogFooter>
+                  <AlertDialogFooter className="border-border bg-card">
                     <AlertDialogCancel>Cancel</AlertDialogCancel>
                     <AlertDialogAction variant="destructive" onClick={() => removeAPIKey()}>Continue</AlertDialogAction>
                   </AlertDialogFooter>
