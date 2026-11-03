@@ -1,4 +1,4 @@
-"use client";;
+"use client";
 import { useRef } from "react";
 import { motion, useInView, useReducedMotion } from "motion/react";
 
@@ -10,10 +10,10 @@ import { cn } from "@/lib/utils";
  */
 export function TextHighlighter({
   children,
-  color = "color-mix(in oklch, var(--primary) 20%, transparent)",
+  color = "color-mix(in srgb, var(--primary) 28%, transparent)",
   duration = 0.7,
   className,
-  /** Skip IntersectionObserver — use for above-the-fold copy that is always visible on load. */
+  /** Skip IntersectionObserver — animate on mount (e.g. above-the-fold hero). */
   immediate = false,
 }) {
   const ref = useRef(null);
@@ -35,17 +35,20 @@ export function TextHighlighter({
           z-index, which would fall behind an ancestor's background. */}
       <motion.span
         aria-hidden
-        initial={{ scaleX: immediate ? 1 : 0 }}
-        animate={shouldAnimate ? { scaleX: 1 } : { scaleX: 0 }}
+        initial={{ scaleX: 0 }}
+        animate={{ scaleX: shouldAnimate ? 1 : 0 }}
         transition={{
           duration: reducedMotion ? 0 : duration,
           ease: [0.22, 1, 0.36, 1],
-          delay: immediate ? 0 : 0.5
+          delay: reducedMotion ? 0 : immediate ? 0.35 : 0.5,
         }}
-        style={{ background: color }}
-        className="absolute -inset-x-1 inset-y-0 origin-left rounded-sm"
+        style={{
+          background: color,
+          transformOrigin: "left center",
+        }}
+        className="absolute -inset-x-1 inset-y-0 z-0 rounded-sm will-change-transform"
       />
-      <span className={cn("relative", className)}>{children}</span>
+      <span className={cn("relative z-[1]", className)}>{children}</span>
     </span>
   );
 }
