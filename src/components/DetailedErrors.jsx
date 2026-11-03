@@ -3,7 +3,6 @@ import { Bug, AlertTriangle, CheckCircle, ShieldCheck } from 'lucide-react'
 import { Modal, ModalTrigger } from './velora/animated-modal'
 
 const DetailedErrors = ({ heading, description }) => {
-    console.log('This is the description', description, heading);
     const box =
         heading === 'Critical Issues'
             ? 'border rounded border-red-500 bg-red-50/40 dark:border-red-400 dark:bg-red-500/10'

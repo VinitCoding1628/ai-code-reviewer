@@ -1,9 +1,5 @@
 import { GoogleGenAI } from "@google/genai";
 
-const ai = new GoogleGenAI({
-    apiKey: import.meta.env.VITE_GEMINI_API_KEY
-});
-
 const SYSTEM_PROMPT_ANALYZE = `
 You are an expert Senior Software Engineer, Security Auditor, and Code Reviewer.
 
@@ -210,7 +206,14 @@ Return ONLY executable code and nothing else.
 The response must be valid source code for the detected programming language.
 `
 
-export const geminiAI = async (code, language, mode) => {
+// Function to send the prompt to the Gemini API
+export const geminiAI = async (code, language, mode, userApiKey) => {
+  const apiKey =
+    userApiKey?.trim() || import.meta.env.VITE_GEMINI_API_KEY?.trim() || "";
+  if (!apiKey) {
+    throw new Error("No Gemini API key configured");
+  }
+  const ai = new GoogleGenAI({ apiKey });
   // Generate the final prompt based on the mode
   let final_prompt;
   switch (mode) {
@@ -226,11 +229,40 @@ export const geminiAI = async (code, language, mode) => {
     default:
       return null;
   }
-    
-    // Send the prompt to the API
-    const response = await ai.interactions.create({
-        model: "gemini-3.5-flash-lite",
-        input: final_prompt,
-      });
-    return response.output_text;
+
+  // Send the prompt to the API
+  const response = await ai.interactions.create({
+    model: "gemini-3.5-flash-lite",
+    input: final_prompt,
+  });
+  return response.output_text;
 }
+
+// Function to test the Gemini API key
+export const testGeminiAPI = async (apiKey) => {
+  // Check if the API key is valid
+  if (!apiKey?.trim()) {
+    return { success: false, error: "API key is required" };
+  }
+
+  // Try to test the API key
+  try {
+    const testAI = new GoogleGenAI({ apiKey: apiKey.trim() });
+    const response = await testAI.interactions.create({
+      model: "gemini-3.5-flash-lite",
+      input: "Hello, how are you?",
+      generation_config: { thinking_level: "low" },
+    });
+
+    // Check if the response is valid
+    if (response?.output_text) {
+      return { success: true };
+    }
+    return { success: false, error: "Empty response from API" };
+  } catch (error) {
+    return {
+      success: false,
+      error: error?.message ?? "API key test failed",
+    };
+  }
+};

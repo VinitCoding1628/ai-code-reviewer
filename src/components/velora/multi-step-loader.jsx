@@ -90,13 +90,26 @@ export function MultiStepLoader({
     return () => clearTimeout(t);
   }, [loading, current, loop, paused, auto, steps.length, duration]);
 
-  // Keep the active step centred in the viewport.
+  // Keep the active step centred in the step viewport.
   useLayoutEffect(() => {
     const list = listRef.current;
-    const row = list?.children[active];
-    if (!list || !row || !loading) return;
-    list.style.transform = `translateY(${-(row.offsetTop + row.offsetHeight / 2)}px)`;
-  }, [active, loading]);
+    const viewport = list?.parentElement;
+    if (!list || !viewport || !loading) return;
+
+    const centerActiveStep = () => {
+      const row = list.children[active];
+      if (!row) return;
+      const viewportCenter = viewport.clientHeight / 2;
+      const rowCenter = row.offsetTop + row.offsetHeight / 2;
+      list.style.transform = `translateY(${viewportCenter - rowCenter}px)`;
+    };
+
+    centerActiveStep();
+    const observer = new ResizeObserver(centerActiveStep);
+    observer.observe(viewport);
+    observer.observe(list);
+    return () => observer.disconnect();
+  }, [active, loading, steps.length]);
 
   const status =
     index >= steps.length
@@ -141,20 +154,20 @@ export function MultiStepLoader({
         props.onBlur?.(e);
       }}
       className={cn(
-        "fixed inset-0 z-[9999] m-0 grid h-dvh max-h-none w-full max-w-none place-items-center border-0 bg-background/80 p-6 text-foreground opacity-100 shadow-none backdrop-blur-md outline-none open:opacity-100 motion-reduce:transition-none [&::backdrop]:bg-background/60 [&::backdrop]:backdrop-blur-sm",
+        "fixed inset-0 z-9999 m-0 grid h-dvh max-h-none w-full max-w-none place-items-center border-0 bg-background/80 p-6 text-foreground opacity-100 shadow-none backdrop-blur-md outline-none open:opacity-100 motion-reduce:transition-none backdrop:bg-background/60 backdrop:backdrop-blur-sm",
         className
       )}
     >
-      <div className="w-full max-w-sm">
+      <div className="mx-auto w-full max-w-sm">
         {title && (
-          <h2 id={titleId} className="mb-2 text-center text-lg font-semibold">
+          <h2 id={titleId} className="mb-4 text-center text-lg font-semibold">
             {title}
           </h2>
         )}
-        <div className="relative h-72 overflow-hidden [mask-image:linear-gradient(transparent,black_35%,black_65%,transparent)]">
+        <div className="relative h-72 overflow-hidden mask-[linear-gradient(to_bottom,transparent,black_20%,black_80%,transparent)]">
           <ol
             ref={listRef}
-            className="absolute inset-x-0 top-1/2 transition-transform duration-500 ease-out motion-reduce:transition-none"
+            className="absolute inset-x-0 top-0 m-0 list-none p-0 transition-transform duration-500 ease-out motion-reduce:transition-none"
           >
             {steps.map((step, i) => {
               const done = i < index;
@@ -164,7 +177,7 @@ export function MultiStepLoader({
                   key={i}
                   aria-current={now ? "step" : undefined}
                   className={cn(
-                    "flex items-center gap-3 py-2.5 transition-[color,opacity] duration-300 motion-reduce:transition-none",
+                    "flex items-center gap-3 py-2.5 text-left transition-[color,opacity] duration-300 motion-reduce:transition-none",
                     now ? "font-medium text-foreground" : "text-muted-foreground",
                     !done && !now && "opacity-50"
                   )}
@@ -188,7 +201,7 @@ export function MultiStepLoader({
                         strokeWidth="3"
                         strokeLinecap="round"
                         strokeLinejoin="round"
-                        className={done ? "size-3.5" : "size-6 motion-safe:animate-spin"}
+                        className={done ? "size-3.5" : "size-4 motion-safe:animate-spin"}
                       >
                         {done ? (
                           <path d="m5 12.5 4.5 4.5L19 7.5" />
@@ -201,17 +214,19 @@ export function MultiStepLoader({
                       </svg>
                     )}
                   </span>
-                  {step.text}
+                  <span className="min-w-0 flex-1 text-pretty leading-snug">{step.text}</span>
                   {done && <span className="sr-only"> (done)</span>}
                 </li>
               );
             })}
           </ol>
         </div>
-        <div aria-hidden className="mt-4 h-1 overflow-hidden rounded-full bg-muted">
+        <div aria-hidden className="mx-auto mt-4 h-1 w-full overflow-hidden rounded-full bg-muted">
           <div
             className="h-full rounded-full bg-primary transition-[width] duration-500 ease-out motion-reduce:transition-none"
-            style={{ width: `${(index / Math.max(steps.length, 1)) * 100}%` }}
+            style={{
+              width: `${((active + 1) / Math.max(steps.length, 1)) * 100}%`,
+            }}
           />
         </div>
         <p role="status" className="sr-only">

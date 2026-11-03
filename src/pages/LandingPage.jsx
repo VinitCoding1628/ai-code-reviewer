@@ -81,7 +81,7 @@ const LandingPage = () => {
     return (
         <SmoothScroll>
         <div>
-            <motion.section className='relative flex min-h-screen items-center justify-center overflow-hidden'>
+            <motion.section className='relative flex min-h-screen items-center justify-center overflow-hidden bg-card'>
                 {/* Background */}
                 <div className="absolute inset-0">
                     <LetterGlitch
@@ -134,14 +134,24 @@ const LandingPage = () => {
 
             {/* Features */}
             <motion.section
-                className="bg-card-foreground"
+                className="relative overflow-hidden bg-card"
                 variants={container}
                 initial="hidden"
                 whileInView="show"
                 viewport={{ once: true, amount: 0.3 }}
             >
+                <div aria-hidden className="pointer-events-none absolute inset-0">
+                    <div className="absolute inset-0 bg-linear-to-b from-background via-primary/5 to-background dark:from-card dark:via-primary/8 dark:to-background" />
+                    <div className="absolute inset-0 bg-linear-to-tr from-secondary/5 via-transparent to-primary/10 opacity-80 dark:from-secondary/10 dark:to-primary/15" />
+                    <div className="absolute -left-32 top-1/4 h-80 w-80 rounded-full bg-primary/20 blur-[100px] dark:bg-primary/30" />
+                    <div className="absolute -right-24 bottom-0 h-72 w-72 rounded-full bg-secondary/15 blur-[100px] dark:bg-secondary/25" />
+                    <div className="absolute left-1/2 top-0 h-px w-[min(100%,48rem)] -translate-x-1/2 bg-linear-to-r from-transparent via-primary/40 to-transparent dark:via-primary/55" />
+                    <div className="absolute inset-0 bg-[radial-gradient(ellipse_90%_60%_at_50%_0%,color-mix(in_oklch,var(--primary)_18%,transparent),transparent_55%)] dark:bg-[radial-gradient(ellipse_90%_60%_at_50%_0%,color-mix(in_oklch,var(--primary)_28%,transparent),transparent_50%)]" />
+                    <div className="absolute inset-0 opacity-40 dark:opacity-50 bg-[linear-gradient(to_right,color-mix(in_oklch,var(--foreground)_6%,transparent)_1px,transparent_1px),linear-gradient(to_bottom,color-mix(in_oklch,var(--foreground)_6%,transparent)_1px,transparent_1px)] bg-size-[3rem_3rem] mask-[radial-gradient(ellipse_at_center,black_20%,transparent_75%)] dark:bg-[linear-gradient(to_right,color-mix(in_oklch,var(--border)_40%,transparent)_1px,transparent_1px),linear-gradient(to_bottom,color-mix(in_oklch,var(--border)_40%,transparent)_1px,transparent_1px)]" />
+                </div>
+
                 <motion.div
-                    className="w-full text-center pt-12 flex flex-col gap-4"
+                    className="relative z-10 w-full pt-12 flex flex-col gap-4 text-center"
                     variants={item}
                 >
                     <h6 className="text-primary text-base font-medium">FEATURES</h6>
@@ -149,7 +159,7 @@ const LandingPage = () => {
                     <p className="text-muted-foreground text-base">Everything you need to write clean, secure, and efficient code.</p>
                 </motion.div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 py-10 px-10">
+                <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 py-10 px-10">
                     {featureList.map((items, index) => (
                         <motion.div key={index} variants={item}>
                             <SpotlightCard color="var(--color-card-hover)" className="p-4 shadow h-full">

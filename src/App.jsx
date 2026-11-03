@@ -6,7 +6,6 @@ import CodeReviewPage from './pages/CodeReviewPage'
 import ErrorPage from './pages/ErrorPage'
 import { Toaster } from 'sonner'
 
-
 const App = () => {
   return (
     <>
