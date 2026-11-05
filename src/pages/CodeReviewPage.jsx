@@ -348,6 +348,19 @@ const CodeReviewPage = () => {
           </div>
         </div>
 
+        {/* Code Editor — shrink-0 on small screens so flex layout cannot collapse Monaco to 0 height */}
+        <div className="mt-3 flex h-[45vh] min-h-48 shrink-0 flex-col overflow-hidden rounded-lg border border-border sm:h-[55vh] lg:h-auto lg:min-h-[45vh] lg:flex-1 xl:min-h-[68vh]">
+          <Editor
+            height="100%"
+            language={monacoLanguage}
+            theme={monacoTheme}
+            beforeMount={defineCodeRevThemes}
+            options={editorOptions}
+            onChange={(code) => setCode(code)}
+            value={code}
+          />
+        </div>
+
         {/* Action Buttons*/}
         <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-4">
           <Button
@@ -399,19 +412,6 @@ const CodeReviewPage = () => {
             <Trash className="size-4 shrink-0" />
             Clear Code
           </Button>
-        </div>
-
-        {/* Code Editor */}
-        <div className="mt-3 flex h-[45vh] flex-1 flex-col overflow-hidden rounded-lg border border-border sm:h-[55vh] lg:h-auto lg:min-h-[45vh] xl:min-h-[68vh]">
-          <Editor
-            height="100%"
-            language={monacoLanguage}
-            theme={monacoTheme}
-            beforeMount={defineCodeRevThemes}
-            options={editorOptions}
-            onChange={(code) => setCode(code)}
-            value={code}
-          />
         </div>
 
         {/* Usage */}
