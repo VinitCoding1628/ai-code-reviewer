@@ -216,7 +216,7 @@ const LandingPage = () => {
             <motion.footer initial="hidden" whileInView="show" viewport={{ once: true, amount: 0.15 }} className='py-7 px-6 border-t-[0.3px] border-gray-400 dark:border-gray-200 bg-linear-to-b from-primary/200 to-secondary/30 bg-white dark:bg-card'>
                 <motion.div variants={item} className='flex justify-between items-start '>
                     <h4>Powered by Google Gemini.</h4>
-                    <h4>Developed by <a href='https://www.artfolio.tech/vinitgite' target='_blank' className='text-secondary hover:underline'>Vinit Gite</a></h4>
+                    <h4>Developed by <a href='https://vinitgite.vercel.app/' target='_blank' className='text-secondary hover:underline'>Vinit Gite</a></h4>
                 </motion.div>
 
                 <motion.div variants={item} className='flex justify-center items-center pt-10 '>
